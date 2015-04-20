@@ -111,6 +111,12 @@ server {
         add_header "Access-Control-Allow-Origin" $http_origin;
     }
 
+    # old script transition
+    location = /getPoints.php {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /export2.php?$args;
+    }
+
     # Update Database
     location = /update2.php {
         allow 127.0.0.1; # local cron
