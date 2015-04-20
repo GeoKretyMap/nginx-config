@@ -1,0 +1,47 @@
+###
+##
+## OpenLayers For GKM
+##
+###
+
+server {
+    listen [::]:80;
+    listen [::]:443;
+    listen 80;
+    listen 443;
+
+    server_name openlayers.geokretymap.org;
+
+    root /home/gkmap/web/openlayers.geokretymap.org;
+
+    access_log /home/gkmap/log/nginx/openlayers.geokretymap.org_access.log timed_combined;
+    error_log  /home/gkmap/log/nginx/openlayers.geokretymap.org_error.log;
+
+    # global security rules
+    include security.conf;
+
+    # Disable all methods besides GET.
+    if ($request_method !~ ^(GET)$ ) {
+    	return 444;
+    }
+    
+    # SSL
+    ssl on;
+    ssl_certificate ssl/geokretymap.org.crt;
+    ssl_certificate_key ssl/geokretymap.org.key;
+    include ssl.conf;
+
+    location = /favicon.ico {
+        try_files /favicon.ico =204;
+    }
+
+    # serve a static Disallow indexing policy to robots
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+
+        # disable indexing
+        return 200 "User-agent: *\nDisallow: /\n";
+    }
+}

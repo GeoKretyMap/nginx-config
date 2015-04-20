@@ -1,0 +1,155 @@
+###
+##
+## Production Api Vhost for GeoKretyMap
+##
+###
+
+server {
+    listen [::]:80;
+    listen 80;
+
+    server_name api.geokretymap.org;
+
+    root /home/gkmap/web/api.geokretymap.org/php;
+
+    access_log /home/gkmap/log/nginx/api/api.geokretymap.org_access.log timed_combined;
+    error_log  /home/gkmap/log/nginx/api/api.geokretymap.org_error.log;
+
+    # global security rules
+    include security.conf;
+
+    # Disable all methods besides GET.
+    if ($request_method !~ ^(GET|POST)$ ) {
+    	return 444;
+    }
+    
+    # SSL
+    #ssl on;
+    #ssl_certificate ssl/geokretymap.org.crt;
+    #ssl_certificate_key ssl/geokretymap.org.key;
+    #include ssl.conf;
+
+    location = /favicon.ico {
+        try_files /favicon.ico =204;
+    }
+
+    # serve a static Disallow indexing policy to robots
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+
+        # disable indexing
+        return 200 "User-agent: *\nDisallow: /\n";
+    }
+
+    # special deny
+    location /lib {
+        deny all;
+    }
+    location /config {
+        deny all;
+    }
+
+    # proxy cache GeoKrety Images
+    location /gkimage {
+        #limit_req           zone=one_per_sec  burst=50 nodelay;
+        proxy_pass          http://geokrety.org/obrazki-male/;
+        proxy_cache         geokretyimgcache;
+        #proxy_cache_key    $scheme$proxy_host$request_uri;
+        #proxy_cache_valid 200 302 60m;
+        #proxy_cache_valid 404 10m
+    }
+
+
+
+    ## Hook to update code from push commit on github
+    location = /webhook.github.php {
+        allow 192.30.252.0/22; # github
+        deny all;
+
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+    }
+
+
+    # lookup gk code
+    location ~ ^/[gG][kK]([0-9A-Fa-f]+)$ {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /lookup.php?gk=$1;
+    }
+
+    # lookup gkid
+    location ~ ^/([0-9]+)$ {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /lookup.php?gkid=$1;
+    }
+
+    location = /lookup.php {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+    }
+
+    # special php scripts
+    # detailed GK info
+    location = /export-details.php {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+    }
+    
+    # basic GK info
+    location = /export2.php {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+        add_header "Access-Control-Allow-Origin" $http_origin;
+    }
+
+    # Update Database
+    location = /update2.php {
+        allow 127.0.0.1; # local cron
+        deny all;
+    
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+        fastcgi_read_timeout 300;
+    }
+
+    # Update Database Details
+    location = /update-details.php {
+        allow 127.0.0.1; # local cron
+        deny all;
+    
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+        fastcgi_read_timeout 300;
+    }
+
+    # Backup Databases
+    location = /backup.php {
+        allow 127.0.0.1; # local cron
+        deny all;
+    
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+        fastcgi_read_timeout 300;
+    }
+    
+    # Return empty for all other files
+    location ~ ^.*$ {
+        return 204;
+    }
+
+    location = / {
+        return 204;
+    }
+}

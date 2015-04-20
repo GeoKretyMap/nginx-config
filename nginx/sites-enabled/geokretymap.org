@@ -1,0 +1,130 @@
+###
+##
+## Production Api Vhost for GeoKretyMap Main website
+##
+###
+
+server {
+    listen [::]:80;
+    listen 80;
+    return 301 https://geokretymap.org$request_uri;
+
+    server_name     geokretymap.org;
+}
+
+server {
+
+    #listen [::]:80 default_server;
+    listen [::]:443 ssl;
+    #listen 80 default_server;
+    listen 443 ssl;
+
+    server_name _; # geokretymap.org
+
+    include status.conf;
+
+    root /home/gkmap/web/www.geokretymap.org;
+
+    access_log /home/gkmap/log/nginx/geokretymap.org_access.log timed_combined;
+    error_log  /home/gkmap/log/nginx/geokretymap.org_error.log;
+
+    # Disable all methods besides HEAD, GET and POST.
+    if ($request_method !~ ^(GET|HEAD|POST)$ ) {
+    	return 444;
+    }
+    
+    # SSL
+    ssl on;
+    ssl_certificate ssl/geokretymap.org.crt;
+    ssl_certificate_key ssl/geokretymap.org.key;
+    include ssl.conf;
+
+    location = /favicon.ico {
+        try_files /favicon.ico =204;
+    }
+
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+
+        return 200 "User-agent: *\nAllow: /\n";
+    }
+
+    # global security rules
+    include security.conf;
+
+    location /gkimage {
+        limit_req           zone=one_per_sec  burst=50 nodelay;
+        proxy_pass          http://geokrety.org/obrazki-male/;
+        proxy_cache         geokretyimgcache;
+        #proxy_cache_key    $scheme$proxy_host$request_uri;
+        #proxy_cache_valid 200 302 60m;
+        #proxy_cache_valid 404 10m
+    }
+
+
+    # lookup gk code
+    location ~ ^/[gG][kK]([0-9A-Fa-f]+)$ {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /code/lookup.php?gk=$1;
+        fastcgi_pass php-gkmap;
+        #include fastcgi.conf;
+    }
+
+    # lookup gkid
+    location ~ ^/([0-9]+)$ {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        try_files $uri /code/lookup.php?gkid=$1;
+        fastcgi_pass php-gkmap;
+        #include fastcgi.conf;
+    }
+
+
+    # redirect to api for old urls... (may be dropped one day...)
+    location = /export2.php {
+        return 301 http://api.geokretymap.org/export2.php?$args;
+    }
+    location = /export-details.php {
+        return 301 http://api.geokretymap.org/export2.php?details=true&$args;
+    }
+
+
+    # root
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+
+    location ~ \.php$ {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        fastcgi_pass php-gkmap;
+        fastcgi_index index.php;
+        fastcgi_intercept_errors on;
+        include fastcgi.conf;
+
+        location ~* wp\-admin {
+            include allow_friends;
+            deny all;
+            fastcgi_pass php-gkmap;
+            fastcgi_index index.php;
+            fastcgi_intercept_errors on;
+            include fastcgi.conf;
+        }
+        location ~* wp\-login\.php {
+            include allow_friends;
+            deny all;
+            fastcgi_pass php-gkmap;
+            fastcgi_index index.php;
+            fastcgi_intercept_errors on;
+            include fastcgi.conf;
+        }
+    }
+
+    #location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+    #    expires max;
+    #    log_not_found off;
+    #    tcp_nodelay off;
+    #}
+
+}
