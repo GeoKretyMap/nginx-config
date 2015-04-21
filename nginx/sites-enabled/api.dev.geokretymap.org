@@ -153,6 +153,17 @@ server {
         fastcgi_read_timeout 600;
     }
 
+    # Optimize Databases
+    location = /optimize.php {
+        allow 127.0.0.1; # local cron
+        deny all;
+    
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap-dev-write;
+        include fastcgi.conf;
+        fastcgi_read_timeout 600;
+    }
+
     # Return empty for all other files
     location ~ ^.*$ {
         return 204;

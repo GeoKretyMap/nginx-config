@@ -151,6 +151,17 @@ server {
         fastcgi_read_timeout 300;
     }
 
+    # Optimize Databases
+    location = /optimize.php {
+        allow 127.0.0.1; # local cron
+        deny all;
+    
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-gkmap;
+        include fastcgi.conf;
+        fastcgi_read_timeout 300;
+    }
+
     location = /status {
         access_log on;
         include allow_friends;
