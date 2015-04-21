@@ -6,9 +6,9 @@
 
 server {
     listen [::]:80;
-    listen [::]:443;
+    listen [::]:443 ssl;
     listen 80;
-    listen 443;
+    listen 443 ssl;
 
     server_name mxn.geokretymap.org;
 
@@ -26,7 +26,6 @@ server {
     }
     
     # SSL
-    ssl on;
     ssl_certificate ssl/geokretymap.org.crt;
     ssl_certificate_key ssl/geokretymap.org.key;
     include ssl.conf;

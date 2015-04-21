@@ -6,10 +6,18 @@
 
 server {
     listen [::]:80;
+    listen [::]:443 ssl;
     listen 80;
-    return 301 http://geokretymap.org$request_uri;
+    listen 443 ssl;
+
+    return 301 $scheme://geokretymap.org$request_uri;
 
     server_name www.geokretymap.org;
+    
+    # SSL
+    ssl_certificate ssl/geokretymap.org.crt;
+    ssl_certificate_key ssl/geokretymap.org.key;
+    include ssl.conf;
 }
 
 server {
