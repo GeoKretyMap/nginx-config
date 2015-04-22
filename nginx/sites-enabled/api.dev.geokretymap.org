@@ -131,17 +131,6 @@ server {
         fastcgi_read_timeout 600;
     }
 
-    # Insert missing GK
-    location = /insert-missing.php {
-        allow 127.0.0.1; # local cron
-        deny all;
-    
-        try_files $uri /$uri?$args;
-        include fastcgi.conf;
-        fastcgi_pass php-gkmap-dev-write;
-        fastcgi_read_timeout 600;
-    }
-
     # Backup Databases
     location = /backup.php {
         allow 127.0.0.1; # local cron
