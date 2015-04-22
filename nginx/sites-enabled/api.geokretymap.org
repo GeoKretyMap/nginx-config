@@ -98,9 +98,7 @@ server {
     # detailed GK info
     location = /export-details.php {
         limit_req   zone=one_per_sec  burst=50 nodelay;
-        try_files $uri /$uri?$args;
-        fastcgi_pass php-gkmap;
-        include fastcgi.conf;
+        try_files $uri /export2.php?details=true&$args;
     }
     
     # basic GK info
