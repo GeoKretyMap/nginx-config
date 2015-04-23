@@ -104,10 +104,11 @@ server {
     # basic GK info
     location = /export2.php {
         limit_req   zone=one_per_sec  burst=50 nodelay;
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap;
         include fastcgi.conf;
         add_header "Access-Control-Allow-Origin" $http_origin;
+        fastcgi_cache export2cache;
+        fastcgi_cache_valid 200 60m;
     }
 
     # old script transition

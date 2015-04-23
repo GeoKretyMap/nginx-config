@@ -69,7 +69,6 @@ server {
         allow 192.30.252.0/22; # github
         deny all;
 
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap-dev;
         include fastcgi.conf;
     }
@@ -89,7 +88,6 @@ server {
 
     location = /lookup.php {
         limit_req   zone=one_per_sec  burst=50 nodelay;
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap-dev;
         include fastcgi.conf;
     }
@@ -104,9 +102,10 @@ server {
     # basic GK info
     location = /export2.php {
         limit_req   zone=one_per_sec  burst=50 nodelay;
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap-dev;
         include fastcgi.conf;
+        fastcgi_cache export2cache;
+        fastcgi_cache_valid 200 60m;
     }
     
     # Update Database
@@ -114,7 +113,6 @@ server {
         allow 127.0.0.1; # local cron
         deny all;
     
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap-dev-write;
         include fastcgi.conf;
         fastcgi_read_timeout 600;
@@ -125,7 +123,6 @@ server {
         allow 127.0.0.1; # local cron
         deny all;
     
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap-dev-write;
         include fastcgi.conf;
         fastcgi_read_timeout 600;
@@ -136,7 +133,6 @@ server {
         allow 127.0.0.1; # local cron
         deny all;
     
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap-dev-write;
         include fastcgi.conf;
         fastcgi_read_timeout 600;
@@ -147,7 +143,6 @@ server {
         allow 127.0.0.1; # local cron
         deny all;
     
-        try_files $uri /$uri?$args;
         fastcgi_pass php-gkmap-dev-write;
         include fastcgi.conf;
         fastcgi_read_timeout 600;
