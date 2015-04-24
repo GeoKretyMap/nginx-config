@@ -102,6 +102,12 @@ server {
         try_files $uri $uri/ /index.php?$args;
     }
 
+    location = /wp-admin/admin-ajax.php {
+        fastcgi_pass php-gkmap;
+        fastcgi_index index.php;
+        fastcgi_intercept_errors on;
+        include fastcgi.conf;
+    }
 
     location ~ \.php$ {
         limit_req   zone=one_per_sec  burst=50 nodelay;
