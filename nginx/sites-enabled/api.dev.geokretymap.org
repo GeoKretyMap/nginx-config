@@ -52,6 +52,11 @@ server {
         deny all;
     }
 
+    # rrd images
+    location /rrd {
+        alias /home/gkmap-dev/rrd/;
+    }
+
     # proxy cache GeoKrety Images
     location /gkimage {
         #limit_req           zone=one_per_sec  burst=50 nodelay;
