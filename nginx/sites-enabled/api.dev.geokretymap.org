@@ -153,10 +153,10 @@ server {
         fastcgi_read_timeout 600;
     }
 
-    # Return empty for all other files
-    location ~ ^.*$ {
-        return 204;
-    }
+    ## Return empty for all other files
+    #location ~ ^.*$ {
+    #    return 204;
+    #}
 
     location = / {
         return 204;
