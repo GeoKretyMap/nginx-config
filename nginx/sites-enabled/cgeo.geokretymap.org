@@ -1,0 +1,66 @@
+###
+##
+## CGeo Fdroid
+##
+###
+
+server {
+    listen [::]:80;
+    listen [::]:443 ssl;
+    listen 80;
+    listen 443 ssl;
+
+    server_name cgeo.geokretymap.org;
+
+    root /home/fdroid/www/mainline/repo;
+
+    access_log /home/fdroid/log/nginx/cgeo.geokretymap.org_access.log timed_combined;
+    error_log  /home/fdroid/log/nginx/cgeo.geokretymap.org_error.log;
+
+    # global security rules
+    include security.conf;
+
+    # Disable all methods besides GET.
+    if ($request_method !~ ^(GET|HEAD)$ ) {
+    	return 444;
+    }
+    
+    # SSL
+    ssl_certificate ssl/geokretymap.org.crt;
+    ssl_certificate_key ssl/geokretymap.org.key;
+    include ssl.conf;
+
+    location /archive {
+        alias /home/fdroid/www/mainline/archive;
+    }
+
+    location /devel {
+        alias /home/fdroid/www/devel/repo;
+    }
+
+    location /devel/archive {
+        alias /home/fdroid/www/devel/archive;
+    }
+
+    location /nightly {
+        alias /home/fdroid/www/nightly/repo;
+    }
+
+    location /nightly/archive {
+        alias /home/fdroid/www/nightly/archive;
+    }
+
+    location = /favicon.ico {
+        try_files /favicon.ico =204;
+    }
+
+    # serve a static Disallow indexing policy to robots
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+
+        # disable indexing
+        return 200 "User-agent: *\nDisallow: /\n";
+    }
+}
