@@ -10,7 +10,7 @@ server {
         #listen [::]:443;
         listen 80;
         #listen 443;
-        server_name monitorix.cinco.dgo.inktomis.com;
+        server_name ~^monitorix\..+\.dgo\.inktomis\.com$;
         root /var/lib/monitorix/www/;
 
         include allow_friends;
