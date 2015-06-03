@@ -10,7 +10,7 @@ server {
     listen 80;
     listen 443 ssl;
 
-    server_name api.geokretymap.org;
+    server_name .api.geokretymap.org;
 
     root /home/gkmap/web/api.geokretymap.org/php;
 
