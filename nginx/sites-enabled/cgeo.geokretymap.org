@@ -30,6 +30,18 @@ server {
     ssl_certificate_key ssl/cgeo.geokretymap.org.key;
     include ssl.conf;
 
+    # Update fdroid repo
+    location = /update-fdroid.php {
+        allow 127.0.0.1; # local cron
+        deny all;
+        root /home/fdroid/www/api;
+
+        try_files $uri /$uri?$args;
+        fastcgi_pass php-fdroid;
+        include fastcgi.conf;
+        fastcgi_read_timeout 300;
+    }
+
     location /archive {
         alias /home/fdroid/www/mainline/archive;
     }
