@@ -10,7 +10,8 @@ server {
     listen 80;
     listen 443 ssl;
 
-    server_name cgeo.geokretymap.org;
+    server_name cgeo.geokretymap.org
+                fdroid.cgeo.org;
 
     root /home/fdroid/www/mainline/repo;
 
@@ -21,7 +22,7 @@ server {
     include security.conf;
 
     # Disable all methods besides GET.
-    if ($request_method !~ ^(GET|HEAD)$ ) {
+    if ($request_method !~ ^(GET|POST|HEAD)$ ) {
     	return 444;
     }
     
@@ -33,6 +34,7 @@ server {
     # Update fdroid repo
     location = /update-fdroid.php {
         allow 127.0.0.1; # local cron
+        allow 2a03:b0c0:2:d0::2ec:c001; # local IPV6
         deny all;
         root /home/fdroid/www/api;
 
