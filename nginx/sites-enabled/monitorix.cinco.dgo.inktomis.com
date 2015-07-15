@@ -13,8 +13,8 @@ server {
         server_name ~^monitorix\..+\.dgo\.inktomis\.com$;
         root /var/lib/monitorix/www/;
 
-        include allow_friends;
-        deny all;
+        #include allow_friends;
+        #deny all;
 
         access_log /var/log/nginx/monitorix.dgo.inktomis.com_access.log;
         error_log  /var/log/nginx/monitorix.dgo.inktomis.com_error.log;
