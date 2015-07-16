@@ -27,8 +27,8 @@ server {
     }
     
     # SSL
-    ssl_certificate ssl/cgeo.geokretymap.org.crt;
-    ssl_certificate_key ssl/cgeo.geokretymap.org.key;
+    ssl_certificate ssl/fdroid.cgeo.org.crt;
+    ssl_certificate_key ssl/fdroid.cgeo.org.key;
     include ssl.conf;
 
     # Update fdroid repo
