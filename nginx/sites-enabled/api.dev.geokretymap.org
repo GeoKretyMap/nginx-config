@@ -112,7 +112,16 @@ server {
         fastcgi_cache export2cache;
         fastcgi_cache_valid 200 60m;
     }
-    
+
+    # NR to ID converter
+    location = /nr2id.php {
+        limit_req   zone=one_per_sec  burst=50 nodelay;
+        fastcgi_pass php-gkmap-dev;
+        include fastcgi.conf;
+        fastcgi_cache nr2idcache;
+        fastcgi_cache_valid 200 60m;
+    }
+
     # Update Database
     location = /update2.php {
         allow 127.0.0.1; # local cron
