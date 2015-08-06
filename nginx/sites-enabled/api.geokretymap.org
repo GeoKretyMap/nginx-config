@@ -119,7 +119,7 @@ server {
     # NR to ID converter
     location = /nr2id.php {
         limit_req   zone=one_per_sec  burst=50 nodelay;
-        fastcgi_pass php-gkmap-dev;
+        fastcgi_pass php-gkmap;
         include fastcgi.conf;
         fastcgi_cache nr2idcache;
         fastcgi_cache_valid 200 60m;
