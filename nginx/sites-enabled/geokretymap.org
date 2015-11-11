@@ -15,9 +15,17 @@ server {
     server_name www.geokretymap.org;
     
     # SSL
-    ssl_certificate ssl/geokretymap.org.crt;
-    ssl_certificate_key ssl/geokretymap.org.key;
-    include ssl.conf;
+    #### cacert?
+    #ssl_certificate ssl/geokretymap.org.crt;
+    #ssl_certificate_key ssl/geokretymap.org.key;
+    #include ssl.conf;
+    #### cacert?
+
+    ### letsencrypt
+    ssl_certificate /etc/letsencrypt/live/geokretymap.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/geokretymap.org/privkey.pem;
+    include ssl-letsencrypt.conf;
+    ### letsencrypt
 }
 
 server {
@@ -31,7 +39,8 @@ server {
 
     include status.conf;
 
-    root /home/gkmap/web/www.geokretymap.org;
+    #root /home/gkmap/web/www.geokretymap.org;
+    root /home/kumy/www/geokretymap.org;
 
     access_log /home/gkmap/log/nginx/geokretymap.org_access.log timed_combined;
     error_log  /home/gkmap/log/nginx/geokretymap.org_error.log;
@@ -40,11 +49,25 @@ server {
     if ($request_method !~ ^(GET|HEAD|POST)$ ) {
     	return 444;
     }
-    
+
     # SSL
-    ssl_certificate ssl/geokretymap.org.crt;
-    ssl_certificate_key ssl/geokretymap.org.key;
-    include ssl.conf;
+    ### cacert?
+    #ssl_certificate ssl/geokretymap.org.crt;
+    #ssl_certificate_key ssl/geokretymap.org.key;
+    #include ssl.conf;
+    ### cacert?
+
+    ### letsencrypt
+    ssl_certificate /etc/letsencrypt/live/geokretymap.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/geokretymap.org/privkey.pem;
+    include ssl-letsencrypt.conf;
+
+    location ~ /.well-known {
+        location ~ /.well-known/acme-challenge/(.*) {
+            add_header Content-Type application/jose+json;
+        }
+    }
+    ### letsencrypt
 
     location = /favicon.ico {
         try_files /favicon.ico =204;
@@ -65,26 +88,17 @@ server {
         limit_req           zone=one_per_sec  burst=50 nodelay;
         proxy_pass          http://geokrety.org/obrazki-male/;
         proxy_cache         geokretyimgcache;
-        #proxy_cache_key    $scheme$proxy_host$request_uri;
-        #proxy_cache_valid 200 302 60m;
-        #proxy_cache_valid 404 10m
     }
 
 
     # lookup gk code
     location ~ ^/[gG][kK]([0-9A-Fa-f]+)$ {
-        limit_req   zone=one_per_sec  burst=50 nodelay;
-        try_files $uri /code/lookup.php?gk=$1;
-        fastcgi_pass php-gkmap;
-        #include fastcgi.conf;
+        return 301 http://api.geokretymap.org/lookup.php?gk=$1;
     }
 
     # lookup gkid
     location ~ ^/([0-9]+)$ {
-        limit_req   zone=one_per_sec  burst=50 nodelay;
-        try_files $uri /code/lookup.php?gkid=$1;
-        fastcgi_pass php-gkmap;
-        #include fastcgi.conf;
+        return 301 http://api.geokretymap.org/lookup.php?gkid=$1;
     }
 
 
@@ -96,48 +110,14 @@ server {
         return 301 http://api.geokretymap.org/export2.php?details=true&$args;
     }
 
-
     # root
     location / {
-        try_files $uri $uri/ /index.php?$args;
+        index index.html;
+        error_page 404 =  @error404;
     }
 
-    location = /wp-admin/admin-ajax.php {
-        fastcgi_pass php-gkmap;
-        fastcgi_index index.php;
-        fastcgi_intercept_errors on;
-        include fastcgi.conf;
+    location @error404 {
+        rewrite  .*  / permanent;
     }
-
-    location ~ \.php$ {
-        limit_req   zone=one_per_sec  burst=50 nodelay;
-        fastcgi_pass php-gkmap;
-        fastcgi_index index.php;
-        fastcgi_intercept_errors on;
-        include fastcgi.conf;
-
-        location ~* wp\-admin {
-            include allow_friends;
-            deny all;
-            fastcgi_pass php-gkmap;
-            fastcgi_index index.php;
-            fastcgi_intercept_errors on;
-            include fastcgi.conf;
-        }
-        location ~* wp\-login\.php {
-            include allow_friends;
-            deny all;
-            fastcgi_pass php-gkmap;
-            fastcgi_index index.php;
-            fastcgi_intercept_errors on;
-            include fastcgi.conf;
-        }
-    }
-
-    #location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
-    #    expires max;
-    #    log_not_found off;
-    #    tcp_nodelay off;
-    #}
 
 }

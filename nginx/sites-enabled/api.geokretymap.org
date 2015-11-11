@@ -26,8 +26,8 @@ server {
     }
     
     # SSL
-    ssl_certificate ssl/geokretymap.org.crt;
-    ssl_certificate_key ssl/geokretymap.org.key;
+    ssl_certificate ssl/api.geokretymap.org.crt;
+    ssl_certificate_key ssl/api.geokretymap.org.key;
     include ssl.conf;
 
     location = /favicon.ico {
@@ -55,6 +55,12 @@ server {
     # rrd images
     location /rrd {
         alias /home/gkmap/rrd/;
+    }
+
+    # static export
+    location /export {
+        alias /home/gkmap/web/static_json/;
+        add_header 'Access-Control-Allow-Origin' '*';
     }
 
     # proxy cache GeoKrety Images

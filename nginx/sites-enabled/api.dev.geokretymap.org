@@ -109,8 +109,9 @@ server {
         limit_req   zone=one_per_sec  burst=50 nodelay;
         fastcgi_pass php-gkmap-dev;
         include fastcgi.conf;
-        fastcgi_cache export2cache;
-        fastcgi_cache_valid 200 60m;
+        #fastcgi_cache export2cache;
+        #fastcgi_cache_valid 200 60m;
+        add_header 'Access-Control-Allow-Origin' '*';
     }
 
     # NR to ID converter
