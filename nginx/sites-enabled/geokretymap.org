@@ -22,8 +22,8 @@ server {
     #### cacert?
 
     ### letsencrypt
-    ssl_certificate /etc/letsencrypt/live/geokretymap.org/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/geokretymap.org/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/geokretymap.org-0001/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/geokretymap.org-0001/privkey.pem;
     include ssl-letsencrypt.conf;
     ### letsencrypt
 }
@@ -58,8 +58,8 @@ server {
     ### cacert?
 
     ### letsencrypt
-    ssl_certificate /etc/letsencrypt/live/geokretymap.org/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/geokretymap.org/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/geokretymap.org-0001/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/geokretymap.org-0001/privkey.pem;
     include ssl-letsencrypt.conf;
 
     location ~ /.well-known {
