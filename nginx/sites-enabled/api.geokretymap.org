@@ -195,6 +195,7 @@ server {
     #}
 
     location = / {
-        return 204;
+        add_header Content-Type text/plain;
+        return 200 "https://api.geokretymap.org/";
     }
 }
